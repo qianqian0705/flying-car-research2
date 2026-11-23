@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>系统安全工程课程作业2｜VE25-100安全分析</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#081525;color:#eaf2fa;font-family:"Microsoft YaHei",Arial,sans-serif;line-height:1.8}
+header{background:linear-gradient(120deg,#102d49,#126078);padding:55px 20px;text-align:center}
+header h1{font-size:32px;margin:10px 0}
+header p{color:#c8e4ef;margin:5px}
+nav{background:#10243a;padding:12px;text-align:center;position:sticky;top:0;z-index:5}
+nav a{color:#8ee4ef;text-decoration:none;margin:0 10px;font-size:14px}
+main{max-width:1050px;margin:auto;padding:25px 20px}
+section{background:#10243a;border:1px solid #29445c;border-radius:12px;padding:25px;margin:22px 0}
+h2{color:#75dce8;border-bottom:1px solid #31536b;padding-bottom:10px}
+h3{color:#a9d9f2;margin-top:22px}
+p,li{color:#d1deea}
+table{width:100%;border-collapse:collapse;margin:15px 0;font-size:14px}
+th,td{border:1px solid #3b566e;padding:10px;text-align:left}
+th{background:#1b405b;color:#8ee4ef}
+tr:nth-child(even){background:#142d45}
+.note{background:#183b50;border-left:4px solid #65d5df;padding:12px 16px;margin:15px 0}
+.warning{color:#ffd28b}
+footer{text-align:center;color:#91a9bb;padding:30px;font-size:13px}
+.tag{display:inline-block;border:1px solid #4b8198;border-radius:20px;padding:3px 12px;margin:5px;color:#a9eaf0;font-size:13px}
+</style>
+</head>
+<body>
+
+<header>
+  <p>系统安全工程 · 课程作业（二）</p>
+  <h1>沃兰特 VE25-100「天行」<br>飞行汽车全方位安全分析</h1>
+  <p>基于系统安全工程方法的危险识别、风险评估与控制研究</p>
+  <div>
+    <span class="tag">eVTOL</span>
+    <span class="tag">系统安全</span>
+    <span class="tag">危险分析</span>
+    <span class="tag">风险控制</span>
+  </div>
+</header>
+
+<nav>
+  <a href="#intro">研究对象</a>
+  <a href="#system">系统组成</a>
+  <a href="#pha">危险识别</a>
+  <a href="#fha">功能分析</a>
+  <a href="#fmea">故障分析</a>
+  <a href="#risk">风险评估</a>
+  <a href="#control">安全措施</a>
+  <a href="#life">生命周期</a>
+  <a href="#summary">结论</a>
+</nav>
+
+<main>
+
+<section id="intro">
+<h2>一、研究对象与安全目标</h2>
+<p>本次作业选择沃兰特航空 VE25-100「天行」作为研究对象。该产品属于载人电动垂直起降航空器（eVTOL），采用复合翼技术路线，面向区域空中交通等应用场景。</p>
+
+<p>根据第一次课程作业中整理的企业公开资料，VE25-100公开设计参数包括：最多6座、最大起飞重量约2500kg、设计航程约200—400km、巡航速度约235km/h。以上为公开设计信息，不代表最终获批的运行参数。</p>
+
+<h3>1.1 安全分析目的</h3>
+<ul>
+<li>识别飞行器在设计、制造、试飞和运营过程中可能出现的危险。</li>
+<li>分析关键系统和部件发生故障时对飞行安全的影响。</li>
+<li>评估不同危险事件的严重程度和发生可能性。</li>
+<li>提出有针对性的风险控制措施，提高系统整体安全性。</li>
+</ul>
+
+<h3>1.2 安全目标</h3>
+<p>本研究将人员生命安全作为最高优先级，重点关注飞行可控性、能源系统安全、推进系统可靠性、飞行控制安全以及应急处置能力，尽可能降低灾难性事故发生的风险。</p>
+
+<div class="note">研究边界：本文依据企业公开资料和系统安全工程通用方法开展课程级分析。由于制造商未公开全部内部设计参数、冗余架构及故障试验数据，文中不将推测内容表述为该型号已经采用的具体设计。</div>
+</section>
+
+<section id="system">
+<h2>二、系统组成与运行环境分析</h2>
+<p>从系统安全角度，可将研究对象划分为以下几个主要子系统：</p>
+<table>
+<tr><th>子系统</th><th>主要功能</th><th>重点安全问题</th></tr>
+<tr><td>机体与机翼系统</td><td>承受载荷，提供结构支撑和气动升力</td><td>结构疲劳、材料损伤、连接失效</td></tr>
+<tr><td>垂直升力系统</td><td>完成垂直起飞、悬停和垂直着陆</td><td>电机故障、旋翼损伤、推力不足</td></tr>
+<tr><td>巡航推进系统</td><td>提供前飞所需推进力</td><td>推进单元失效、推力异常</td></tr>
+<tr><td>能源与热管理系统</td><td>储存和分配电能，控制温度</td><td>电池热失控、高压短路、过热</td></tr>
+<tr><td>飞控与航电系统</td><td>感知飞行状态并控制飞行器</td><td>传感器错误、软件故障、控制失效</td></tr>
+<tr><td>人员与地面保障系统</td><td>驾驶、维护、充电和应急保障</td><td>人为操作失误、维护不当、消防不足</td></tr>
+</table>
+
+<h3>2.1 主要运行阶段</h3>
+<ol>
+<li><b>垂直起飞：</b>升力系统提供主要升力，飞行器离开地面。</li>
+<li><b>加速转换：</b>飞行器由垂直飞行逐步过渡至固定翼前飞状态。</li>
+<li><b>固定翼巡航：</b>机翼提供主要气动升力，推进系统维持前飞。</li>
+<li><b>减速转换：</b>飞行器降低前飞速度，逐步进入垂直飞行状态。</li>
+<li><b>垂直着陆：</b>升力系统控制下降速度并完成着陆。</li>
+</ol>
+<p>其中，转换飞行阶段涉及飞行速度、姿态、升力和推进方式的变化，是本次安全分析的重点。</p>
+</section>
+
+<section id="pha">
+<h2>三、初步危险源分析（PHA）</h2>
+<p>初步危险分析（Preliminary Hazard Analysis，PHA）用于在系统层面识别潜在危险，并初步判断可能造成的后果。</p>
+<table>
+<tr><th>编号</th><th>危险源</th><th>可能原因</th><th>可能后果</th></tr>
+<tr><td>H1</td><td>转换飞行异常</td><td>空速、姿态或推力控制异常</td><td>飞行失稳，严重时导致坠机</td></tr>
+<tr><td>H2</td><td>电池热失控</td><td>电芯故障、过充、过热或外部损伤</td><td>起火、烟雾、能源系统失效</td></tr>
+<tr><td>H3</td><td>推进系统故障</td><td>电机、电调或供电线路故障</td><td>推力不足，无法正常飞行或着陆</td></tr>
+<tr><td>H4</td><td>飞控系统异常</td><td>传感器错误、软件缺陷或计算机故障</td><td>控制指令错误，飞行姿态异常</td></tr>
+<tr><td>H5</td><td>结构损伤</td><td>疲劳、振动、制造缺陷或外部冲击</td><td>结构强度下降，影响飞行安全</td></tr>
+<tr><td>H6</td><td>恶劣天气</td><td>强风、雷雨、结冰或低能见度</td><td>操纵困难，迫降或失控风险增加</td></tr>
+<tr><td>H7</td><td>人为操作失误</td><td>训练不足、判断错误或程序执行不当</td><td>错误操作引发事故</td></tr>
+</table>
+<div class="note">PHA分析表明，能源、推进、飞控和转换飞行是影响载人eVTOL安全的重要环节。危险之间还可能相互影响，例如电池故障可能进一步导致推进能力下降。</div>
+</section>
+
+<section id="fha">
+<h2>四、功能危险分析（FHA）</h2>
+<p>功能危险分析（Functional Hazard Assessment，FHA）从系统功能出发，研究某项功能丧失、错误或异常时可能产生的安全后果。</p>
+<table>
+<tr><th>功能</th><th>功能异常情况</th><th>安全影响</th><th>安全要求</th></tr>
+<tr><td>飞行姿态控制</td><td>控制指令错误或功能丧失</td><td>飞行器可能失去稳定</td><td>确保控制功能可靠，并监测异常状态</td></tr>
+<tr><td>垂直升力</td><td>升力不足或输出异常</td><td>起飞、悬停或着陆能力下降</td><td>验证推进能力和故障后的安全处置能力</td></tr>
+<tr><td>巡航推进</td><td>推进力中断</td><td>巡航性能下降，可能需要紧急着陆</td><td>评估故障后的可控性和备降策略</td></tr>
+<tr><td>能源管理</td><td>电量估算错误或供电中断</td><td>能源不足，影响动力和航电</td><td>加强电量监测、保护和告警</td></tr>
+<tr><td>飞行状态感知</td><td>空速、高度或姿态信息错误</td><td>控制系统可能依据错误信息决策</td><td>进行传感器合理性检查和故障识别</td></tr>
+</table>
+
+<h3>重点分析：转换飞行功能</h3>
+<p>转换飞行需要不同飞行模式之间协调工作。如果空速测量错误、控制逻辑异常或推进能力不足，可能导致飞行器无法按照预期完成转换。因此应重点验证转换过程中的飞行包线、控制稳定性、异常退出逻辑和故障处置程序。</p>
+</section>
+
+<section id="fmea">
+<h2>五、关键部件失效模式分析（FMEA）</h2>
+<p>故障模式与影响分析（Failure Mode and Effects Analysis，FMEA）用于分析部件可能发生的故障、故障原因及其影响。</p>
+<table>
+<tr><th>部件/系统</th><th>失效模式</th><th>原因示例</th><th>影响</th><th>控制方向</th></tr>
+<tr><td>电池系统</td><td>热失控</td><td>过热、内部短路</td><td>起火，供电能力下降</td><td>温度监测、热隔离、故障告警</td></tr>
+<tr><td>电机系统</td><td>电机停转</td><td>绕组故障、控制器故障</td><td>局部推力丧失</td><td>状态监测、故障识别、应急策略</td></tr>
+<tr><td>飞控传感器</td><td>数据异常</td><td>传感器损坏、信号干扰</td><td>飞行状态判断错误</td><td>数据交叉检查、异常检测</td></tr>
+<tr><td>控制计算机</td><td>计算或输出异常</td><td>硬件故障、软件缺陷</td><td>控制指令错误</td><td>验证软硬件可靠性和故障隔离</td></tr>
+<tr><td>高压线路</td><td>绝缘失效</td><td>磨损、老化、安装缺陷</td><td>短路、电弧或供电中断</td><td>绝缘监测、线路检查和防护</td></tr>
+<tr><td>机体结构</td><td>疲劳裂纹</td><td>长期循环载荷</td><td>结构强度下降</td><td>疲劳试验、定期检查和维修</td></tr>
+</table>
+<p>FMEA分析说明，单个部件故障不一定直接造成事故，但如果故障没有及时发现，或多个故障相互叠加，就可能使系统安全裕度不断降低。因此，需要将部件级分析与系统级危险分析结合起来。</p>
+</section>
+
+<section id="risk">
+<h2>六、风险评估与分级</h2>
+<p>风险评估主要考虑两个因素：危险事件发生的可能性，以及事件发生后造成的后果严重程度。本节采用课程研究中的定性分级方法，不代表正式适航安全性评估。</p>
+
+<h3>6.1 风险等级定义</h3>
+<table>
+<tr><th>等级</th><th>可能性</th><th>严重程度</th></tr>
+<tr><td>低</td><td>发生可能性较低</td><td>影响有限，可通过常规措施控制</td></tr>
+<tr><td>中</td><td>存在一定发生可能性</td><td>可能影响任务完成或造成一定损失</td></tr>
+<tr><td>高</td><td>需要重点关注的可能性</td><td>可能造成严重人员伤害或重大设备损失</td></tr>
+</table>
+
+<h3>6.2 主要危险的定性评估</h3>
+<table>
+<tr><th>危险事件</th><th>可能性判断</th><th>后果严重程度</th><th>初步风险等级</th></tr>
+<tr><td>转换飞行异常</td><td>中</td><td>灾难性</td><td class="warning">高</td></tr>
+<tr><td>电池热失控</td><td>低至中</td><td>灾难性</td><td class="warning">高</td></tr>
+<tr><td>推进系统故障</td><td>中</td><td>严重至灾难性</td><td class="warning">高</td></tr>
+<tr><td>飞控信息异常</td><td>中</td><td>严重至灾难性</td><td class="warning">高</td></tr>
+<tr><td>结构疲劳损伤</td><td>低至中</td><td>严重</td><td>中高</td></tr>
+<tr><td>恶劣天气影响</td><td>中</td><td>严重</td><td>中高</td></tr>
+<tr><td>人为操作失误</td><td>中</td><td>视具体场景而定</td><td>中高</td></tr>
+</table>
+<div class="note">上述等级属于基于公开信息的初步定性判断。由于缺乏该型号实际故障率、飞行小时数和安全性定量数据，不能将其理解为经过统计验证的风险概率。</div>
+</section>
+
+<section id="control">
+<h2>七、安全设计与风险控制措施</h2>
+
+<h3>7.1 设计阶段</h3>
+<ul>
+<li>在系统设计早期开展危险分析，明确各子系统安全要求。</li>
+<li>对飞控、推进和能源等关键系统开展故障模式分析。</li>
+<li>关注关键设备之间的独立性，降低共因故障风险。</li>
+<li>开展结构强度、疲劳、振动和环境适应性验证。</li>
+</ul>
+
+<h3>7.2 能源与推进系统</h3>
+<ul>
+<li>建立电池电压、温度、电流和绝缘状态监测机制。</li>
+<li>设置过温、过流、过压等保护和异常告警策略。</li>
+<li>开展推进单元故障、供电异常和热管理失效等场景测试。</li>
+<li>研究故障发生后剩余推进能力及安全着陆条件。</li>
+</ul>
+
+<h3>7.3 飞控与软件系统</h3>
+<ul>
+<li>加强传感器数据合理性检查，识别异常测量值。</li>
+<li>对飞控软件进行严格的需求验证、测试和配置管理。</li>
+<li>分析控制计算机故障、通信中断和共因失效的影响。</li>
+<li>针对转换飞行建立异常识别、告警和安全处置策略。</li>
+</ul>
+
+<h3>7.4 试飞与运营阶段</h3>
+<ul>
+<li>按照风险逐步增加的原则制定试飞科目。</li>
+<li>建立气象限制、航线评估和备降点选择要求。</li>
+<li>制定电池故障、动力异常和迫降情况下的应急程序。</li>
+<li>加强飞行员训练、维修人员培训和地面消防保障。</li>
+</ul>
+</section>
+
+<section id="life">
+<h2>八、全生命周期安全管理</h2>
+<p>系统安全并不是只在产品设计阶段开展，而应覆盖设计、制造、试验、运营和退役全过程。</p>
+<table>
+<tr><th>生命周期阶段</th><th>主要安全工作</th><th>管理重点</th></tr>
+<tr><td>概念与设计</td><td>危险识别、安全需求制定</td><td>从源头降低风险</td></tr>
+<tr><td>制造与装配</td><td>质量检验、工艺控制、部件追溯</td><td>避免制造缺陷</td></tr>
+<tr><td>地面与飞行试验</td><td>试验风险评估、故障记录、数据分析</td><td>逐步验证安全性</td></tr>
+<tr><td>适航审定</td><td>符合性验证、安全性论证</td><td>满足适用的适航要求</td></tr>
+<tr><td>商业运营</td><td>运行监控、维修、人员训练</td><td>持续控制运行风险</td></tr>
+<tr><td>退役与回收</td><td>电池处置、危险品管理、部件回收</td><td>防止环境和人员风险</td></tr>
+</table>
+
+<h3>持续安全改进</h3>
+<p>运营过程中应建立故障和事件报告机制，定期分析维修记录、飞行数据和异常事件。对于重复发生的问题，应及时开展原因调查，更新风险评估结果，并将改进措施反馈到设计、维护和人员培训环节。</p>
+</section>
+
+<section id="summary">
+<h2>九、结论与改进建议</h2>
+<p>通过对沃兰特 VE25-100「天行」开展系统安全工程分析，可以看出，载人eVTOL的安全性不仅取决于某一个部件的可靠性，而是由机体结构、推进系统、能源系统、飞控系统、人员操作和运行环境共同决定。</p>
+
+<p>本次分析识别出转换飞行异常、电池热失控、推进系统故障、飞控异常和结构损伤等主要危险。其中，转换飞行、能源系统和飞行控制系统值得重点关注。这些危险可能相互影响，因此需要从系统层面开展综合分析，而不能只关注单个部件。</p>
+
+<h3>主要改进建议</h3>
+<ol>
+<li><b>加强转换飞行安全验证：</b>重点研究速度、姿态和推力异常时的安全控制策略。</li>
+<li><b>提高能源系统安全性：</b>加强电池状态监测、热失控防护和高压电气安全设计。</li>
+<li><b>完善故障处置能力：</b>研究推进单元故障、供电异常和飞控故障后的安全着陆条件。</li>
+<li><b>强化软件与系统验证：</b>关注软件缺陷、传感器异常和共因失效。</li>
+<li><b>建立持续安全管理体系：</b>将设计验证、试飞、维护和运营数据纳入持续改进过程。</li>
+</ol>
+
+<div class="note">
+<b>最终结论：</b>飞行汽车的商业化发展必须以安全为前提。对于 VE25-100 这类载人复合翼 eVTOL，应坚持系统化危险识别、全过程风险控制和持续安全改进。只有在关键系统经过充分验证、适航要求得到满足、运行保障体系逐步完善的基础上，才能进一步推动其安全应用。
+</div>
+</section>
+
+<section id="references">
+<h2>参考资料</h2>
+<ol>
+<li>沃兰特航空：VE25-100产品介绍页。<a href="https://www.volantaerotech.com/product.html" target="_blank">官方产品页面</a></li>
+<li>沃兰特航空：VE25-100研制批首架机AC101下线（2025-05-24）。</li>
+<li>沃兰特航空：AC101完成首次无保护自由飞行（2025-09-01）。</li>
+<li>沃兰特航空：VE25完成首次有人驾驶飞行（2025-10-14）。</li>
+<li>中国证券报：沃兰特完成VE25-100有人驾驶转换飞行（2026-06-25）。</li>
+<li>中国民用航空局：电推进系统专用条件编制指南（AC-21-A）。</li>
+<li>中国民用机场协会团体标准 T/CCAATB 0062—2024。</li>
+<li>波士顿咨询：中国载人eVTOL行业白皮书（2025年9月）。</li>
+</ol>
+<p class="warning">说明：本网页为课程学习与研究成果，不代表制造商正式安全评估，也不构成适航批准或实际飞行操作依据。</p>
+</section>
+
+</main>
+
+<footer>
+系统安全工程课程作业（二）｜研究对象：沃兰特 VE25-100「天行」<br>
+飞行汽车全方位安全分析
+</footer>
+</body>
+</html>
